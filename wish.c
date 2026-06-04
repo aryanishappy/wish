@@ -29,17 +29,26 @@ int main(int argc, char *argv[]) {
         flag = 0;
     }
 
+    // Setting linked list for paths with default starting /bin
     struct path* paths = malloc(sizeof(struct path));
+    if(paths == NULL) {
+        fprintf(stderr, "Initial memory allocation for path values failed\n");
+        return 1;
+    }
     paths->path = strdup("/bin");
     paths->next = NULL;
+
+    // Infinite loop until user enters the command 'exit'
     while(1) {
+        //Prompt user for input
         if(flag)    printf("wish> ");
+
         char* full_command = NULL;
         size_t command_size = 0;
         ssize_t input_size = 0;
         if((input_size = getline(&full_command, &command_size, stdin)) <= 1) {
-            if(!flag)   break;
-            write(STDERR_FILENO, error_message, strlen(error_message)); 
+            if(!flag && input_size == 1)   break;
+            write(STDERR_FILENO, error_message, strlen(error_message));
             continue;
         }
 
