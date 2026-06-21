@@ -5,8 +5,8 @@
 #include <sys/wait.h>
 #include <stdbool.h>
 #include <fcntl.h>
-
-char error_message[30] = "An error has occurred\n";
+#include "input_processing.h"
+#include "error_messages.h"
 // write(STDERR_FILENO, error_message, strlen(error_message)); 
 
 struct path {
@@ -17,13 +17,13 @@ struct path {
 int main(int argc, char *argv[]) {
     bool flag = 1;
     if(argc > 2) {
-        fprintf(stderr, "Incorrect use of command");
+        fprintf(stderr, "Incorrect use of command. Possible uses: ./wish <file-name> or ./wish");
         exit(1);
     }
     else if(argc == 2) {
         // for batch mode directing file stream to input stream
         if(freopen(argv[1], "r", stdin) == NULL) {
-            fprintf(stderr, "Incorrect use of command");
+            fprintf(stderr, "File cannot be opened. Please ensure a valid file in the current directory.");
             exit(1);
         }
         flag = 0;
@@ -37,23 +37,25 @@ int main(int argc, char *argv[]) {
     }
     paths->path = strdup("/bin");
     paths->next = NULL;
+    char* full_command = NULL;
 
     // Infinite loop until user enters the command 'exit'
     while(1) {
         //Prompt user for input
         if(flag)    printf("wish> ");
 
-        char* full_command = NULL;
-        size_t command_size = 0;
+        // Get the whole input in full_command
         ssize_t input_size = 0;
-        if((input_size = getline(&full_command, &command_size, stdin)) <= 1) {
-            if(!flag && input_size == 1)   break;
-            write(STDERR_FILENO, error_message, strlen(error_message));
+        free(full_command);
+        full_command = take_input(&input_size);
+        if(full_command == NULL) {
+            fprintf(stderr, "Input processing failed. Please retry with proper input.\n");
             continue;
         }
 
-        // stripping whitespace and newline from end
-        full_command[input_size - 1] = '\0';
+        // stripping whitespace and newline from begin and end
+        // char* to_free_full_command = full_command;                   // to free afterwards
+        while(*full_command == ' ') full_command++;
         for(int i = input_size - 2; i >= 0; i--) {
             if(full_command[i] == ' ')  full_command[i] = '\0';
             else                        break;
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
                 exit(0);
             }
             else {
-                write(STDERR_FILENO, error_message, strlen(error_message)); 
+                fprintf(stderr, "Invalid command. Possible use: exit\n");
                 continue;
             }
         }
@@ -85,9 +87,7 @@ int main(int argc, char *argv[]) {
                 write(STDERR_FILENO, error_message, strlen(error_message)); 
                 continue;
             }
-            if(chdir(argument) == 0) {
-            }
-            else {
+            if(chdir(argument) != 0) {
                 write(STDERR_FILENO, error_message, strlen(error_message)); 
                 continue;
             }
@@ -270,6 +270,8 @@ int main(int argc, char *argv[]) {
                 write(STDERR_FILENO, error_message, strlen(error_message)); 
             }
         }
+        // free(to_free_full_command);
     }
+    free(full_command);
     return 0;
 }
