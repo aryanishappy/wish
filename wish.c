@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
     paths->path = strdup("/bin");
     paths->next = NULL;
-    char* full_command = NULL;
+    char* to_free_full_command = NULL;
 
     // Infinite loop until user enters the command 'exit'
     while(1) {
@@ -46,15 +46,15 @@ int main(int argc, char *argv[]) {
 
         // Get the whole input in full_command
         ssize_t input_size = 0;
-        free(full_command);
-        full_command = take_input(&input_size);
+        free(to_free_full_command);
+        char* full_command = take_input(&input_size);
+        to_free_full_command = full_command;
         if(full_command == NULL) {
             fprintf(stderr, "Input processing failed. Please retry with proper input.\n");
             continue;
         }
 
         // stripping whitespace and newline from begin and end
-        // char* to_free_full_command = full_command;                   // to free afterwards
         while(*full_command == ' ') full_command++;
         for(int i = input_size - 2; i >= 0; i--) {
             if(full_command[i] == ' ')  full_command[i] = '\0';
@@ -272,6 +272,6 @@ int main(int argc, char *argv[]) {
         }
         // free(to_free_full_command);
     }
-    free(full_command);
+    free(to_free_full_command);
     return 0;
 }
