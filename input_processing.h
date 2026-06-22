@@ -30,7 +30,13 @@ char* take_input(ssize_t* final_input_size) {
         }
         input_line[current_input_size - 1] = '\0';
         current_input_size--;
-        is_last_backshlash = (current_input_size > 0 && input_line[current_input_size - 1] == '\\');
+        int count_of_backshlash = 0, curr_ind = current_input_size - 1;
+        while(curr_ind >= 0) {
+            if(input_line[curr_ind] == '\\')    count_of_backshlash++;
+            else                                break;
+            curr_ind--;
+        }
+        is_last_backshlash = (count_of_backshlash & 1);
 
         input_size += current_input_size;
         if(size_of_final_command < input_size + 1) {

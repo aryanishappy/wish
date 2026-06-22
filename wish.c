@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
                 }
             }
             if(!found) {
-                write(STDERR_FILENO, error_message, strlen(error_message)); 
+                fprintf(stderr, "Command not found!!\n");
             }
         }
         // free(to_free_full_command);
