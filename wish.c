@@ -42,7 +42,12 @@ int main(int argc, char *argv[]) {
     // Infinite loop until user enters the command 'exit'
     while(1) {
         //Prompt user for input
-        if(flag)    printf("wish> ");
+        char current_dir[1000];
+        if(getcwd(current_dir, 1000) == NULL) {
+            fprintf(stderr, "Cannot access current directory name\n");
+            exit(1);
+        }
+        if(flag)    printf("wish: [%s] > ", current_dir);
 
         // Get the whole input in full_command
         ssize_t input_size = 0;
