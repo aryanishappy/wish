@@ -10,7 +10,7 @@
 
 #include "error_messages.h"
 
-char* get_input(ssize_t* final_input_size) {
+char* get_input() {
     char* input_line = NULL;
     char* final_command = (char *) malloc(sizeof(char));
     if(final_command == NULL) {
@@ -83,7 +83,6 @@ char* get_input(ssize_t* final_input_size) {
         input_line = NULL;
         command_size = 0;
     }
-    *final_input_size = input_size;
     return final_command;
 }
 
