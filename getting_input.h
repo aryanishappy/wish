@@ -1,5 +1,5 @@
-#ifndef INPUT_PROCESSING_H
-#define INPUT_PROCESSING_H
+#ifndef GETTING_INPUT_H
+#define GETTING_INPUT_H
 
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +10,7 @@
 
 #include "error_messages.h"
 
-char* take_input(ssize_t* final_input_size) {
+char* get_input(ssize_t* final_input_size) {
     char* input_line = NULL;
     char* final_command = (char *) malloc(sizeof(char));
     if(final_command == NULL) {
@@ -24,6 +24,7 @@ char* take_input(ssize_t* final_input_size) {
     ssize_t current_input_size = 0, input_size = 0;
     bool is_last_backshlash = true;
     while(is_last_backshlash) {
+        printf("> ");
         current_input_size = getline(&input_line, &command_size, stdin);
         if(current_input_size < 1) {
             return NULL;
@@ -38,6 +39,7 @@ char* take_input(ssize_t* final_input_size) {
         }
         is_last_backshlash = (count_of_backshlash & 1);
 
+        if(is_last_backshlash)  input_line[current_input_size - 1] = '\0';
         input_size += current_input_size;
         if(size_of_final_command < input_size + 1) {
             int new_size = size_of_final_command;

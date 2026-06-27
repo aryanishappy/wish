@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include "input_processing.h"
+#include "getting_input.h"
 #include "error_messages.h"
 // write(STDERR_FILENO, error_message, strlen(error_message)); 
 
@@ -47,12 +47,12 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Cannot access current directory name\n");
             exit(1);
         }
-        if(flag)    printf("wish: [%s] > ", current_dir);
+        if(flag)    printf("wish: [%s] ", current_dir);
 
         // Get the whole input in full_command
         ssize_t input_size = 0;
         free(to_free_full_command);
-        char* full_command = take_input(&input_size);
+        char* full_command = get_input(&input_size);
         to_free_full_command = full_command;
         if(full_command == NULL) {
             fprintf(stderr, "Input processing failed. Please retry with proper input.\n");
