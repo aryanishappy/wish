@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
         flag = 0;
     }
 
+    path_initialization();
     // Infinite loop until user enters the command 'exit'
     while(1) {
         //Prompt user for input
@@ -42,7 +43,6 @@ int main(int argc, char *argv[]) {
             printf("wish: [%s] ", current_dir);
         }
 
-        path_initialization();
         // Get the whole input in full_command
         ssize_t input_size = 0;
         char* full_command = get_input(&input_size);

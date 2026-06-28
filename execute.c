@@ -46,6 +46,7 @@ void execute_ast(struct Command* cmd) {
         if(can_access) {
             execv(executable_path, ecmd->argv);
 
+            free(executable_path);
             fprintf(stderr, "execv failed\n");
             exit(1);
         }
@@ -105,8 +106,8 @@ void execute_ast(struct Command* cmd) {
         close(p[0]);
         close(p[1]);
 
-        waitpid(-1, NULL, 0);
-
+        waitpid(lt, NULL, 0);
+        waitpid(rt, NULL, 0);
         exit(0);
     }
 }
@@ -137,12 +138,14 @@ int execute_builtin(struct Command* cmd) {
         while(paths != NULL) {
             struct path* temp = paths;
             paths = paths->next;
+            free(temp->path);
             free(temp);
         }
         int ind = 1;
-        while(ecmd->argv[ind] != NULL) {
+        while(ecmd->argv[ind] != NULL)  ind++;
+        while(--ind != 0) {
             struct path* new_path = (struct path *) malloc(sizeof(struct path));
-            new_path->path = strdup(ecmd->argv[ind++]);
+            new_path->path = strdup(ecmd->argv[ind]);
             new_path->next = paths;
             paths = new_path;
         }
