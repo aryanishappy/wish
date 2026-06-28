@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include "getting_input.h"
+#include "input_processing.h"
 #include "error_messages.h"
 #include "lexer.h"
 #include "path.h"
@@ -49,16 +50,22 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Input processing failed. Please retry with proper input.\n");
             continue;
         }
+        char** commands = break_command(full_command);
+        char** current_command = commands;
+        while(*current_command != NULL) {
+            TokenArray* tokens = tokenize(*current_command);
+            struct Command* ast = parse(tokens);
 
-        TokenArray* tokens = tokenize(full_command);
-        struct Command* ast = parse(tokens);
+            if(ast != NULL) {
+                run_command(ast);
+            }
 
-        if(ast != NULL) {
-            run_command(ast);
+            free_ast(ast);
+            free_token_array(tokens);
+            free(*current_command);
+            current_command++;
         }
-
-        free_ast(ast);
-        free_token_array(tokens);
+        free(commands);
         free(full_command);
     }
 
