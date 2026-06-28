@@ -7,9 +7,11 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include "getting_input.h"
-#include "input_processing.h"
-#include "command_processing.h"
 #include "error_messages.h"
+#include "lexer.h"
+#include "path.h"
+#include "parser.h"
+#include "execute.h"
 // write(STDERR_FILENO, error_message, strlen(error_message)); 
 
 int main(int argc, char *argv[]) {
@@ -27,10 +29,6 @@ int main(int argc, char *argv[]) {
         flag = 0;
     }
 
-    if(path_initialization() == 1) {
-        fprintf(stderr, "Path initialization failed\n");
-        return 1;
-    }
     // Infinite loop until user enters the command 'exit'
     while(1) {
         //Prompt user for input
@@ -43,6 +41,7 @@ int main(int argc, char *argv[]) {
             printf("wish: [%s] ", current_dir);
         }
 
+        path_initialization();
         // Get the whole input in full_command
         ssize_t input_size = 0;
         char* full_command = get_input(&input_size);
@@ -50,15 +49,19 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Input processing failed. Please retry with proper input.\n");
             continue;
         }
-        char** commands = break_command(full_command);
-        char** current_command = commands;
-        while(*current_command != NULL) {
-            // printf("%s\n", *current_command);
-            if(process(*current_command) > 1) {
-                fprintf(stderr, "Command not found\n");
-            }
-            current_command++;
+
+        TokenArray* tokens = tokenize(full_command);
+        struct Command* ast = parse(tokens);
+
+        if(ast != NULL) {
+            run_command(ast);
         }
+
+        free_ast(ast);
+        free_token_array(tokens);
+        free(full_command);
     }
+
+    free_path();
     return 0;
 }
