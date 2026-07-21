@@ -34,6 +34,10 @@ int main(int argc, char *argv[]) {
     // Infinite loop until user enters the command 'exit'
     while(1) {
         //Prompt user for input
+        if(eofbit == 1) {
+            fprintf(stderr, "End of File found\n");
+            return 0;
+        }
         if(flag) {
             char current_dir[1000];
             if(getcwd(current_dir, 1000) == NULL) {

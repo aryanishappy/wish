@@ -7,8 +7,11 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "error_messages.h"
+
+bool eofbit = 0;
 
 char* get_input() {
     char* input_line = NULL;
@@ -27,10 +30,19 @@ char* get_input() {
         printf("> ");
         current_input_size = getline(&input_line, &command_size, stdin);
         if(current_input_size < 1) {
+            eofbit = 1;
             return NULL;
         }
-        input_line[current_input_size - 1] = '\0';
-        current_input_size--;
+        if(current_input_size == 1 && input_line[current_input_size - 1] == '\n') {
+            return NULL;
+        }
+        if(input_line[current_input_size - 1] == '\n') {
+            input_line[current_input_size - 1] = '\0';
+            current_input_size--;
+        }
+        else {
+            eofbit = 1;
+        }
         int count_of_backshlash = 0, curr_ind = current_input_size - 1;
         while(curr_ind >= 0) {
             if(input_line[curr_ind] == '\\')    count_of_backshlash++;
